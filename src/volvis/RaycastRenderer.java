@@ -1,4 +1,3 @@
-//hello
 /*
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
@@ -19,10 +18,6 @@ import volume.GradientVolume;
 import volume.Volume;
 import volume.VoxelGradient;
 
-/**
- *
- * @author michel
- */
 public class RaycastRenderer extends Renderer implements TFChangeListener {
 
     private Volume volume = null;
@@ -34,12 +29,6 @@ public class RaycastRenderer extends Renderer implements TFChangeListener {
     double[] vVec;
     double[] pixelCoord;
     double[] volumeCenter;
-    private TFColor ambient = new TFColor();
-    private TFColor diffuse = new TFColor();
-    private final double k_amb = 0.3;
-    private final double k_dif = 0.7;
-    private final double k_spec = 0.2;
-    private final double alpha1 = 10;
     TFColor voxelColor;
     double max;
     int imageCenter;
@@ -47,31 +36,7 @@ public class RaycastRenderer extends Renderer implements TFChangeListener {
     TransferFunction tFunc;
     TransferFunctionEditor tfEditor;
     TransferFunction2DEditor tfEditor2D;
-    
-    
-    
-
-
-    public TFColor getColor(double[] L, double[] N, double[] V, TFColor dif) {
-        // compute reflection vector
-        // R = 2(N.L)N - L
-        double[] R = VectorMath.subtract((VectorMath.scale(N, 2*VectorMath.dotproduct(N, L))), L);
-
-        // compute L.N and (V.R)^{\alpha}
-        double l_n = Math.max(0, VectorMath.dotproduct(L, N));
-        double v_r = VectorMath.dotproduct(V, R);
-        v_r = (v_r <= 0 || l_n <= 0) ? 0 : Math.pow(v_r, alpha1);
-        diffuse = dif;
-        ambient = new TFColor(1,1,1,1);
-        // compute color
-        TFColor color = new TFColor(
-                k_amb * ambient.r + k_dif * diffuse.r * l_n + k_spec * diffuse.r * v_r,
-                k_amb * ambient.g + k_dif * diffuse.g * l_n + k_spec * diffuse.g * v_r,
-                k_amb * ambient.b + k_dif * diffuse.b * l_n + k_spec * diffuse.b * v_r,
-                diffuse.a);
-        //System.out.println(color.toString());
-        return color;
-    }
+        
     private TFColor getShading(double[] coord, TFColor voxelColor, double[] viewVec) {
         if (coord[0] < 0 || coord[0] >= volume.getDimX()
                 || coord[1] < 0 || coord[1] >= volume.getDimY()
@@ -79,12 +44,12 @@ public class RaycastRenderer extends Renderer implements TFChangeListener {
             voxelColor.set(0, 0, 0, voxelColor.a);
             return voxelColor;
         }
-        diffuse = voxelColor;
+        TFColor diffuse = voxelColor;
         VoxelGradient vg = gradients.getGradient(
                 (int) Math.floor(coord[0]),
                 (int) Math.floor(coord[1]),
                 (int) Math.floor(coord[2]));
-        return getColor(viewVec, vg.getNormal(), viewVec, diffuse);
+        return tFunc.getC(viewVec, vg.getNormal(), viewVec, diffuse);
         
     }
     
@@ -365,16 +330,10 @@ public class RaycastRenderer extends Renderer implements TFChangeListener {
                 int diag = (int) Math.sqrt(volume.getDimX() * volume.getDimX() + volume.getDimY() * volume.getDimY() + volume.getDimZ() * volume.getDimZ()); 
                 
                 for (int step=0;step < diag - 1;step = step + 1) {
-                pixelCoord[0] = uVec[0] * (i - imageCenter) 
-                        + vVec[0] * (j - imageCenter) 
-                         +  viewVec[0]*(step - imageCenter ) + volumeCenter[0];
-                pixelCoord[1] = uVec[1] * (i - imageCenter)
-                        + vVec[1] * (j - imageCenter) 
-                         + viewVec[1]*(step - imageCenter) + volumeCenter[1];
-                pixelCoord[2] = uVec[2] * (i - imageCenter) 
-                        + vVec[2] * (j - imageCenter)
-                         + viewVec[2]*(step - imageCenter)+volumeCenter[2];
-
+                pixelCoord[0] = uVec[0] * (i - imageCenter) + vVec[0] * (j - imageCenter) + viewVec[0]*(step - imageCenter) + volumeCenter[0];
+                pixelCoord[1] = uVec[1] * (i - imageCenter) + vVec[1] * (j - imageCenter) + viewVec[1]*(step - imageCenter) + volumeCenter[1];
+                pixelCoord[2] = uVec[2] * (i - imageCenter) + vVec[2] * (j - imageCenter) + viewVec[2]*(step - imageCenter) + volumeCenter[2];
+                
                 double val = getVoxel(pixelCoord);
 
                 // retreiving colour

@@ -7,12 +7,19 @@ package volvis;
 import java.awt.Color;
 import java.util.ArrayList;
 import util.TFChangeListener;
+import util.VectorMath;
 
 /**
  *
  * @author michel
  */
 public class TransferFunction {
+    private final double k_amb = 0.3;
+    private final double k_dif = 0.7;
+    private final double k_spec = 0.2;
+    private final double alpha1 = 10;
+    private TFColor ambient = new TFColor();
+    private TFColor diffuse = new TFColor();
 
     private ArrayList<TFChangeListener> listeners = new ArrayList<TFChangeListener>();
     
@@ -62,6 +69,25 @@ public class TransferFunction {
 
     public TFColor getColor(int value) {
         return LUT[computeLUTindex(value)];
+    }
+    
+    public TFColor getC(double[] L, double[] N, double[] V, TFColor dif) {
+        // reflection vector
+        double[] R = VectorMath.subtract((VectorMath.scale(N, 2*VectorMath.dotproduct(N, L))), L);
+
+        double l_n = Math.max(0, VectorMath.dotproduct(L, N));
+        double v_r = VectorMath.dotproduct(V, R);
+        v_r = (v_r <= 0 || l_n <= 0) ? 0 : Math.pow(v_r, alpha1);
+        diffuse = dif;
+        ambient = new TFColor(1,1,1,1);
+        // compute color
+        TFColor color = new TFColor(
+                k_amb * ambient.r + k_dif * diffuse.r * l_n + k_spec * diffuse.r * v_r,
+                k_amb * ambient.g + k_dif * diffuse.g * l_n + k_spec * diffuse.g * v_r,
+                k_amb * ambient.b + k_dif * diffuse.b * l_n + k_spec * diffuse.b * v_r,
+                diffuse.a);
+        //System.out.println(color.toString());
+        return color;
     }
 
     
