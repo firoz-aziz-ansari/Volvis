@@ -33,24 +33,12 @@ public class VectorMath {
         return Math.sqrt(VectorMath.dotproduct(tmp, tmp));
     }
 
-    // compute dotproduct of v and w
-    public static double[] crossproduct(double[] v, double[] w, double[] r) {
-        r[0] = v[1] * w[2] - v[2] * w[1];
-        r[1] = v[2] * w[0] - v[0] * w[2];
-        r[2] = v[0] * w[1] - v[1] * w[0];
-        return r;
-    }
     
     // compute length of vector v
     public static double length(double[] v) {
         return Math.sqrt(v[0]*v[0] + v[1]*v[1] + v[2]*v[2]);
     }
-    
-    // add two vectors
-    public static double[] add(double[] v, double[] w) {
-        return new double[] {v[0]+w[0], v[1]+w[1], v[2]+w[2]};
-    }
-    
+   
     // subtract two vectors
     public static double[] subtract(double[] v, double[] w) {
         return new double[] {v[0]-w[0], v[1]-w[1], v[2]-w[2]};

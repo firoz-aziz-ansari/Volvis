@@ -20,6 +20,12 @@ public class TransferFunction {
     private final double alpha1 = 10;
     private TFColor ambient = new TFColor();
     private TFColor diffuse = new TFColor();
+    
+    private short sMin, sMax;
+    private int sRange;
+    private TFColor[] LUT;
+    private int LUTsize = 4095;
+    private ArrayList<ControlPoint> controlPoints;
 
     private ArrayList<TFChangeListener> listeners = new ArrayList<TFChangeListener>();
     
@@ -75,16 +81,16 @@ public class TransferFunction {
         // reflection vector
         double[] R = VectorMath.subtract((VectorMath.scale(N, 2*VectorMath.dotproduct(N, L))), L);
 
-        double l_n = Math.max(0, VectorMath.dotproduct(L, N));
-        double v_r = VectorMath.dotproduct(V, R);
-        v_r = (v_r <= 0 || l_n <= 0) ? 0 : Math.pow(v_r, alpha1);
+        double lxn = Math.max(0, VectorMath.dotproduct(L, N));
+        double vxr = VectorMath.dotproduct(V, R);
+        vxr = (vxr <= 0 || lxn <= 0) ? 0 : Math.pow(vxr, alpha1);
         diffuse = dif;
         ambient = new TFColor(1,1,1,1);
         // compute color
         TFColor color = new TFColor(
-                k_amb * ambient.r + k_dif * diffuse.r * l_n + k_spec * diffuse.r * v_r,
-                k_amb * ambient.g + k_dif * diffuse.g * l_n + k_spec * diffuse.g * v_r,
-                k_amb * ambient.b + k_dif * diffuse.b * l_n + k_spec * diffuse.b * v_r,
+                k_amb * ambient.r + k_dif * diffuse.r * lxn + k_spec * diffuse.r * vxr,
+                k_amb * ambient.g + k_dif * diffuse.g * lxn + k_spec * diffuse.g * vxr,
+                k_amb * ambient.b + k_dif * diffuse.b * lxn + k_spec * diffuse.b * vxr,
                 diffuse.a);
         //System.out.println(color.toString());
         return color;
@@ -192,9 +198,5 @@ public class TransferFunction {
         }
         
     }
-    private short sMin, sMax;
-    private int sRange;
-    private TFColor[] LUT;
-    private int LUTsize = 4095;
-    private ArrayList<ControlPoint> controlPoints;
+    
 }

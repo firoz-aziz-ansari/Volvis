@@ -4,10 +4,6 @@
  */
 package volume;
 
-/**
- *
- * @author michel
- */
 public class GradientVolume {
 
     public GradientVolume(Volume vol) {
@@ -48,16 +44,6 @@ public class GradientVolume {
     public int getDimZ() {
         return dimZ;
     }
-    /*
-    private void compute() {
-
-        // this just initializes all gradients to the vector (0,0,0)
-        for (int i=0; i<data.length; i++) {
-            data[i] = zero;
-        }
-                
-    }
-*/
    
    private void compute() {
         for (int i = 0; i < dimX; i++) {
@@ -72,9 +58,9 @@ public class GradientVolume {
                         
                     } else {
                      
-                        float x = (float) (0.5 * (volume.getVoxel(i - 1, j, k) - volume.getVoxel(i + 1, j, k)));
-                        float y = (float) (0.5 * (volume.getVoxel(i, j - 1, k) - volume.getVoxel(i, j + 1, k)));
-                        float z = (float) (0.5 * (volume.getVoxel(i, j, k - 1) - volume.getVoxel(i, j, k + 1)));
+                        float x = (float) ((volume.getVoxel(i - 1, j, k) - volume.getVoxel(i + 1, j, k))/2);
+                        float y = (float) ((volume.getVoxel(i, j - 1, k) - volume.getVoxel(i, j + 1, k))/2);
+                        float z = (float) ((volume.getVoxel(i, j, k - 1) - volume.getVoxel(i, j, k + 1))/2);
                         
                         gradient = new VoxelGradient(x, y, z);
                         setGradient(i, j, k, gradient);
