@@ -392,34 +392,31 @@ public class RaycastRenderer extends Renderer implements TFChangeListener {
                     if (val == 0) {
                         continue;
                     }
-                    float intensity = tfEditor2D.triangleWidget.baseIntensity;
-                    TFColor col = tfEditor2D.triangleWidget.color;
+                    float baseIntensity = tfEditor2D.triangleWidget.baseIntensity;
+                    TFColor color = tfEditor2D.triangleWidget.color;
                     double radius = tfEditor2D.triangleWidget.radius;
-                    double alpha;
+                    double a;
                     
                     VoxelGradient grad = gradients.getGradient((int) pixelCoord[0], (int) pixelCoord[1], (int) pixelCoord[2]);
                     
                     //Kniss approach. Uncomment and set the range to see the effects.
                     /*if (gradient.mag < 0 || gradient.mag > 60)
                         alpha =0;
-                    else*/ if (val == intensity && grad.mag == 0){
-                        alpha = 1;
-                    } else if (grad.mag > 0 && ((val - (radius * grad.mag)) <= intensity && intensity <= (val + (radius * grad.mag)))) {
-                            alpha = col.a * (1 - (1 / radius) * Math.abs(((intensity - val) / grad.mag))); //Levoy
+                    else*/ if (val == baseIntensity && grad.mag == 0){
+                        a = 1;
+                    } else if (grad.mag > 0 && ((val - (radius * grad.mag)) <= baseIntensity && baseIntensity <= (val + (radius * grad.mag)))) {
+                            a = color.a * (1 - (1 / radius) * Math.abs(((baseIntensity - val) / grad.mag))); //Levoy
                         } else {
-                        alpha = 0;
+                        a = 0;
                     }
                     
                     if (shading) {
-                        col = getShading(pixelCoord, col,viewVec);
+                        color = getShading(pixelCoord, color,viewVec);
                     }
-                    voxelColor.r = (col.r * alpha) + (voxelColor.r * (1 - alpha));
-                    voxelColor.g = (col.g * alpha) + (voxelColor.g * (1 - alpha));
-                    voxelColor.b = (col.b * alpha) + (voxelColor.b * (1 - alpha));
-                     
-                 
-                    
-                  }
+                    voxelColor.r = (color.r * a) + (voxelColor.r * (1 - a));
+                    voxelColor.g = (color.g * a) + (voxelColor.g * (1 - a));
+                    voxelColor.b = (color.b * a) + (voxelColor.b * (1 - a));   
+                }
                 int c_alpha = voxelColor.a <= 1.0 ? (int) Math.floor(voxelColor.a * 255) : 255;
                 int c_red = voxelColor.r <= 1.0 ? (int) Math.floor(voxelColor.r * 255) : 255;
                 int c_green = voxelColor.g <= 1.0 ? (int) Math.floor(voxelColor.g * 255) : 255;
@@ -427,8 +424,8 @@ public class RaycastRenderer extends Renderer implements TFChangeListener {
                 int pixelColor = (c_alpha << 24) | (c_red << 16) | (c_green << 8) | c_blue;
                 image.setRGB(i, j, pixelColor);
                 
-               //smoothens the image when resolution is lowered during Interaction mode
-               for (int l = 0; l <res; l++) {
+                //smoothens the image when resolution is lowered during Interaction mode
+                for (int l = 0; l <res; l++) {
                     for (int m= 0; m <res; m++) {
                         if (m + i < image.getHeight() && m + i >= 0 && l + j < image.getWidth() && l + j >= 0) {
                             image.setRGB(m + i, l + j,pixelColor);
@@ -447,11 +444,9 @@ public class RaycastRenderer extends Renderer implements TFChangeListener {
             return voxelColor;
         }
         TFColor diffuse = voxelColor;
-        VoxelGradient vg = gradients.getGradient(
-                (int) Math.floor(coord[0]),
-                (int) Math.floor(coord[1]),
-                (int) Math.floor(coord[2]));
-        return tFunc.getC(viewVec, vg.getNormal(), viewVec, diffuse);
+        VoxelGradient vg = gradients.getGradient((int) Math.floor(coord[0]), (int) Math.floor(coord[1]), (int) Math.floor(coord[2]));
+        TFColor result = tFunc.getC(viewVec, vg.getNormal(), viewVec, diffuse);
+        return result;
         
     }
     

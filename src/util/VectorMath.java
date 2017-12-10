@@ -4,10 +4,6 @@
  */
 package util;
 
-/**
- *
- * @author michel
- */
 public class VectorMath {
 
     // assign coefficients c0..c2 to vector v
